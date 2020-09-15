@@ -20,17 +20,20 @@
             v-else
             class="w-full flex mt-20"
         >
-            <div class="w-1/2 pt-2">
-                <router-link
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    :to="'game/' + game"
-                >
-                    Join a new game
-                </router-link>
+            <div class="w-1/2 flex justify-center">
+                <div class="w-1/2 flex flex-col">
+                    <button
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        @click="newGame"
+                    >
+                        Join Existing
+                    </button>
+                </div>
             </div>
             <div class="flex justify-center w-1/2">
                 <div class="flex flex-col w-1/2">
                     <input
+                        v-model="existingGameId"
                         class="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
                         type="text"
                         placeholder="xxxx-xxxx-xxxx"
@@ -52,10 +55,11 @@ export default {
     data() {
         return {
             user: null,
+            existingGameId: null,
         };
     },
     computed: {
-        game() {
+        gameId() {
             return this.makeGameId(4) + '-' + this.makeGameId(4) + '-' + this.makeGameId(4);
         },
         username() {
@@ -76,7 +80,10 @@ export default {
             this.$store.dispatch('utils/setUsername', this.user);
         },
         joinGame() {
-            return;
+            this.$router.push('/game/' + this.existingGameId);
+        },
+        newGame() {
+            this.$router.push('/game/' + this.gameId);
         },
     },
 };

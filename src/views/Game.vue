@@ -12,7 +12,12 @@
             >
                 Position
             </button>
-
+            <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                @click="getUserList"
+            >
+                User List
+            </button>
             <button
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 @click="sendOnRoom"
@@ -49,19 +54,24 @@ export default {
                 lon: 18.185019,
             },
             rotation: 0,
+            userList: [],
         };
     },
-    computed: {
-        rot() {
-            return this.rotation;
-        },
-    },
     created() {
+        if(!this.$store.getters['utils/username']) {
+            this.$router.push('/');
+        }
         console.log(this.$route.params);
-        this.socket.emit('join', { room: this.$route.params.gameid }, (data) => {
-            console.log(data);
+        this.socket.emit('join', { game: this.$route.params.gameid, user: this.$store.getters['utils/username'] }, (data) => {
+            if(data.status === 'success') {
+                console.log('Request users in game');
+                this.socket.emit('getusers', { game: this.$route.params.gameid }, (data) => {
+                    console.log(data);
+                });
+            }
         });
     },
+
     mounted() {
         this.socket.on('response', (data) => {
             if(this.msgs.length > 9) {
@@ -69,8 +79,20 @@ export default {
             }
             this.msgs.push(data);
         });
+        setInterval(() => {
+            //console.log('userList');
+            this.socket.on('listusers', (data) => {
+                this.userList = data;
+            });
+        }, 1000);
     },
     methods: {
+        getUserList() {
+            console.log(this.$route.params.gameid);
+            this.socket.emit('getusers', { game: this.$route.params.gameid }, (data) => {
+                console.log(data);
+            });
+        },
         position() {
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
@@ -82,7 +104,7 @@ export default {
             this.calcDistance();
         },
         sendOnRoom() {
-            this.socket.emit('send', { room: this.$route.params.gameid, msg: this.text }, (data) => {
+            this.socket.emit('send', { game: this.$route.params.gameid, msg: this.text }, (data) => {
                 console.log(data);
             });
             this.text = '';

@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
-let rooms = [];
+let games = [];
 
 
 
@@ -39,12 +39,26 @@ app.get('/api/test', (req, res) => {
 io.listen(server);
 io.on('connection', (socket) => {
     socket.on('join', (data, fn) => {
-        console.log(data.room, fn);
-        fn(`joining ${data.room}`);
-        socket.join(data.room);
-        rooms.push(data.room);
+        let response = {
+            status: 'success',
+        };
+        socket.join(data.game);
+        let game = games.find(e => e.name === data.game);
+        if(game) {
+            if(!game.users.find(e => e === data.user)) {
+                game.users.push({ name: data.user, creator: false });
+            }
+        } else {
+            games.push({ name: data.game, users: [ { name: data.user, creator: true } ] });
+        }
+        console.log(game);
+        fn(response);
     });
     socket.on('send', (data) => {
-        io.in(data.room).emit('response', data.msg);
+        io.in(data.game).emit('response', data.msg);
+    });
+    socket.on('getusers', (data) => {
+        let game = games.find(e => e.name === data.game);
+        io.in(data.game).emit('listusers', game.users);
     });
 });
