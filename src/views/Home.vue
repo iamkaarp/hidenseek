@@ -1,7 +1,26 @@
 <template>
     <div class="container mx-auto flex justify-center">
-        <div class="flex w-1/2 mt-20">
-            <div class="w-1/2">
+        <div
+            v-if="!username"
+            class="flex flex-col mt-20"
+        >
+            <input
+                v-model="user"
+                class="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal mb-2"
+                type="text"
+            />
+            <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                @click="setUsername"
+            >
+                Set username
+            </button>
+        </div>
+        <div
+            v-else
+            class="w-full flex mt-20"
+        >
+            <div class="w-1/2 pt-2">
                 <router-link
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     :to="'game/' + game"
@@ -9,18 +28,20 @@
                     Join a new game
                 </router-link>
             </div>
-            <div class="flex flex-col w-1/2">
-                <input
-                    class="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
-                    type="text"
-                    placeholder="xxxx-xxxx-xxxx"
-                />
-                <button
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    @click="join"
-                >
-                    Join Existing
-                </button>
+            <div class="flex justify-center w-1/2">
+                <div class="flex flex-col w-1/2">
+                    <input
+                        class="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
+                        type="text"
+                        placeholder="xxxx-xxxx-xxxx"
+                    />
+                    <button
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        @click="joinGame"
+                    >
+                        Join Existing
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -28,9 +49,17 @@
 
 <script>
 export default {
+    data() {
+        return {
+            user: null,
+        };
+    },
     computed: {
         game() {
             return this.makeGameId(4) + '-' + this.makeGameId(4) + '-' + this.makeGameId(4);
+        },
+        username() {
+            return this.$store.getters['utils/username'];
         },
     },
     methods: {
@@ -41,8 +70,13 @@ export default {
             for ( var i = 0; i < length; i++ ) {
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));
             }
-            console.log(result);
             return result;
+        },
+        setUsername() {
+            this.$store.dispatch('utils/setUsername', this.user);
+        },
+        joinGame() {
+            return;
         },
     },
 };
