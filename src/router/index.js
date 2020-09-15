@@ -9,6 +9,11 @@ const routes = [
         name: 'Home',
         component: require('../views/Home.vue').default,
     },
+    {
+        path: '/game/:gameid',
+        name: 'Game',
+        component: require('../views/Game.vue').default,
+    },
 
 ];
 
