@@ -17,8 +17,12 @@ export default {
         },
     },
     actions: {
-        setGame({ commit }, data) {
-            commit(data);
+        setGame({ commit }, game) {
+            let data = {
+                game,
+            };
+
+            commit('setGame', data);
         },
         setUsername({ commit }, username) {
             let data = {

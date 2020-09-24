@@ -57,34 +57,35 @@ export default {
             userList: [],
         };
     },
-    created() {
+    mounted() {
         if(!this.$store.getters['utils/username']) {
             this.$router.push('/');
         }
-        console.log(this.$route.params);
-        this.socket.emit('join', { game: this.$route.params.gameid, user: this.$store.getters['utils/username'] }, (data) => {
-            if(data.status === 'success') {
-                console.log('Request users in game');
-                this.socket.emit('getusers', { game: this.$route.params.gameid }, (data) => {
-                    console.log(data);
-                });
-            }
-        });
-    },
-
-    mounted() {
-        this.socket.on('response', (data) => {
-            if(this.msgs.length > 9) {
-                this.msgs.shift();
-            }
-            this.msgs.push(data);
-        });
-        setInterval(() => {
-            //console.log('userList');
-            this.socket.on('listusers', (data) => {
-                this.userList = data;
+        this.socket.on('connect', () => {
+            setInterval(() => {
+                if(!this.socket.connected) {
+                    this.$store.dispatch('utils/setUsername', null);
+                    this.$store.dispatch('utils/setGame', null);
+                    window.location.reload();
+                }
+            }, 500);
+            this.socket.emit('join', { game: this.$route.params.gameid, username: this.$store.getters['utils/username'], socketId: this.socket.id });
+            this.socket.on('joined', (response) => {
+                if(response.status === 'success') {
+                    this.socket.emit('getusers', { game: this.$route.params.gameid });
+                    this.socket.on('getusers', (response) => {
+                        console.log(response);
+                    });
+                }
             });
-        }, 1000);
+            this.socket.on('disconnect', (data) => {
+                if(data.username === this.$store.getters['utils/username'] && data.socketId === this.socket.id) {
+                    alert('User already in game');
+                    this.socket.close();
+                    window.location.reload();
+                }
+            });
+        });
     },
     methods: {
         getUserList() {

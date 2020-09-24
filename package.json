@@ -7,12 +7,15 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "dev": "nodemon api/index.js"
+    "dev": "nodemon --watch api api/index.js"
   },
   "dependencies": {
+    "axios": "^0.20.0",
     "core-js": "^3.6.5",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "nodemon": "^2.0.4",
+    "random-username-generator": "^1.0.4",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "tailwindcss": "^1.8.10",
